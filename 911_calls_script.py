@@ -1,8 +1,7 @@
 import pandas as pd
-import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import seaborn as sns
-import string as s
+
 
 df = pd.read_csv("911.csv")
 
@@ -59,3 +58,40 @@ byMonth.head()
 # Plot of calls by month
 fig = plt.figure()
 ax = plt.axes()
+ax.plot(byMonth['reason']);
+
+# Regression of calls by month
+byMonth = byMonth.reset_index()
+g = sns.lmplot(x="Month", y="reason", data=byMonth)
+
+# Creating 'date' column
+df['date'] = df['timeStamp'].apply(lambda y: y.date())
+
+# All calls
+df.groupby('date').count()['twp'].plot()
+plt.tight_layout()
+# EMS Calls
+df[df["reason"] == "EMS"].groupby('date').count()['twp'].plot()
+plt.tight_layout()
+
+df[df["reason"] == "Fire"].groupby('date').count()['twp'].plot()
+plt.tight_layout()
+
+df[df["reason"] == "Traffic"].groupby('date').count()['twp'].plot()
+plt.tight_layout()
+
+### Heatmaps
+
+# Restructuring data for day of week and hour
+restructured = df.groupby(["Day of Week", "Hour"]).count()['reason'].unstack()
+# Heatmap of df
+ax = sns.heatmap(restructured)
+# Cluster heatmap
+ax = sns.clustermap(restructured)
+
+# Restructuring data for day of week and month
+restructured = df.groupby(["Day of Week", "Month"]).count()['reason'].unstack()
+# Heatmap of df
+ax = sns.heatmap(restructured)
+# Cluster heatmap
+ax = sns.clustermap(restructured)
